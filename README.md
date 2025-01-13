@@ -1,0 +1,1 @@
+Pobrać za pomocą retrofit dane dotyczące książek z dowolnego api. Jeżeli api zwraca kilka książek – wybrać 1 z listy. Zapisać te dane do bazy w Firebase. Pozwolić użytkownikowi na dodawanie, przeglądanie oraz usuwanie tych danych. Pozwolić użytkownikowi na modyfikowanie tych danych.
