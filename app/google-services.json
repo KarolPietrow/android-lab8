@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481731487459",
+    "project_id": "karolpietrow-kp8",
+    "storage_bucket": "karolpietrow-kp8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481731487459:android:8cc03f6dd38ded294e87d6",
+        "android_client_info": {
+          "package_name": "pl.karolpietrow.kp8"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA25UgDrWJwz7tWizz8aZtYCYqv1t7kCxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
