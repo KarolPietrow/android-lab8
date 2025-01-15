@@ -11,14 +11,22 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import pl.karolpietrow.kp8.ui.theme.KP8Theme
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +42,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BookScreen() {
+    val bookViewModel = BookViewModel()
+    var input by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -84,13 +95,22 @@ fun BookScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "ID książek do pobrania",
+                text = "ID lub tytuł książki do pobrania",
                 fontWeight = FontWeight.Bold
+            )
+            TextField(
+                value = input,
+                onValueChange = { input = it },
+                label = { Text("ID książki lub Tytuł/Autor") },
             )
             Row {
                 Button(
                     onClick = {
-//                    if (minID.toInt()>maxID.toInt()) {
+                        if (input.isDigitsOnly()) {
+                            bookViewModel.getBookByID(input)
+                        } else {
+
+                        }
 //                        Toast.makeText(context, "Nieprawidłowy zakres!", Toast.LENGTH_SHORT).show()
 //                    } else {
 //                        val intent = Intent(context, BookService::class.java).apply {
@@ -98,7 +118,6 @@ fun BookScreen() {
 //                            putExtra("maxID", maxID.toInt())
 //                        }
 //                        context.startService(intent)
-//                    }
                     },
                     modifier = Modifier.padding(5.dp)
                 ) {
