@@ -1,6 +1,5 @@
 package pl.karolpietrow.kp8
 
-import android.net.Network
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,7 +18,7 @@ class BookViewModel: ViewModel() {
     private val _searchStatus = MutableLiveData<NetworkResponse<SearchModel>>()
     val searchStatus: LiveData<NetworkResponse<SearchModel>> = _searchStatus
 
-    fun getSearchResults(search: String) {
+    fun getBookBySearch(search: String) {
         viewModelScope.launch {
             _searchStatus.value = NetworkResponse.Loading
             viewModelScope.launch {
