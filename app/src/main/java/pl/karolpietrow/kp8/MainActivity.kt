@@ -1,6 +1,5 @@
 package pl.karolpietrow.kp8
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -16,16 +15,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,12 +61,11 @@ fun BookScreen() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val bookViewModel = BookViewModel()
+    val bookList by bookViewModel.bookList.collectAsState()
 
     var input by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var bookList by remember { mutableStateOf(listOf<BookModel>()) }
     var selectedBook by remember { mutableStateOf<BookModel?>(null) }
-
 
     bookViewModel.bookStatus.observe(lifecycleOwner) { bookResult ->
         when (bookResult) {
@@ -76,7 +78,6 @@ fun BookScreen() {
             }
             is NetworkResponse.Success -> {
                 if (bookResult.data.toString().isNotEmpty()) {
-                    bookList += bookResult.data
                     isLoading = false
                 }
             }
@@ -233,26 +234,43 @@ fun BookScreen() {
                             .padding(10.dp)
                             .clickable { selectedBook = book }
                     ) {
-                        Text(
-                            modifier = Modifier.padding(5.dp),
-                            text = "ID: " +  book.id,
-                            fontSize = 20.sp
-                        )
-                        Text(
-                            modifier = Modifier.padding(5.dp),
-                            text = "Tytuł: " + book.title,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (book.authors.isNotEmpty()) {
-                            Text(
-                                modifier = Modifier.padding(5.dp),
-                                text = "Autorzy: ",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            book.authors.forEach { author ->
-                                Text(author.name, modifier = Modifier.padding(5.dp))
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(0.75f)
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(5.dp),
+                                    text = "ID: " + book.id,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    modifier = Modifier.padding(5.dp),
+                                    text = "Tytuł: " + book.title,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (book.authors.isNotEmpty()) {
+                                    Text(
+                                        modifier = Modifier.padding(5.dp),
+                                        text = "Autorzy: ",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    book.authors.forEach { author ->
+                                        Text(author.name, modifier = Modifier.padding(5.dp))
+                                    }
+                                }
+                            }
+                            IconButton(
+                                modifier = Modifier.weight(0.25f),
+                                onClick = {
+                                    bookViewModel.deleteBook(book.dbID)
+                                },
+                            ) {
+                                Icon(imageVector = Icons.Default.Delete, "Delete icon")
                             }
                         }
                     }
@@ -283,7 +301,8 @@ fun BookScreen() {
                                 bookViewModel.getBookBySearch(input)
                             }
                         } else {
-                            Toast.makeText(context, "Pole nie może być puste!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Pole nie może być puste!", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     },
                     modifier = Modifier.padding(5.dp)
@@ -292,11 +311,11 @@ fun BookScreen() {
                 }
                 Button(
                     onClick = {
-                        bookList = emptyList()
+                        bookViewModel.refreshList()
                     },
                     modifier = Modifier.padding(5.dp)
                 ) {
-                    Text("Wyczyść listę")
+                    Text("Odśwież listę")
                 }
             }
         }

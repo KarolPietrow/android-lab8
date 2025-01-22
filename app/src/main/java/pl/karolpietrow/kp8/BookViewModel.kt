@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.karolpietrow.kp8.api.NetworkResponse
 import pl.karolpietrow.kp8.api.RetrofitInstance
@@ -12,6 +14,10 @@ import pl.karolpietrow.kp8.api.book.BookModel
 import pl.karolpietrow.kp8.api.search.SearchModel
 
 class BookViewModel: ViewModel() {
+    val repository = BookRepository()
+    private val _bookList = MutableStateFlow<List<BookModel>>(emptyList())
+    val bookList: StateFlow<List<BookModel>> = _bookList
+
     private val bookApi = RetrofitInstance.bookApi
     private val _bookStatus = MutableLiveData<NetworkResponse<BookModel>>()
     val bookStatus: LiveData<NetworkResponse<BookModel>> = _bookStatus
@@ -47,6 +53,8 @@ class BookViewModel: ViewModel() {
                     response.body()?.let {
                         Log.i("Response: ", response.body().toString())
                         _bookStatus.value = NetworkResponse.Success(it)
+                        repository.addBook(it)
+                        refreshList()
                     } ?: run {
                         _bookStatus.value = NetworkResponse.Error("Brak danych")
                     }
@@ -57,6 +65,23 @@ class BookViewModel: ViewModel() {
             } catch (e: Exception) {
                 _bookStatus.value = NetworkResponse.Error("Błąd ładowania danych")
             }
+        }
+    }
+
+    fun refreshList() {
+        viewModelScope.launch {
+            try {
+                _bookList.value = repository.getAllBooks()
+            } catch (e: Exception) {
+                Log.e("BookViewModel", "Nie udało się odświeżyć listy: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteBook(id: String) {
+        viewModelScope.launch {
+            repository.deleteBook(id)
+            refreshList()
         }
     }
 }
