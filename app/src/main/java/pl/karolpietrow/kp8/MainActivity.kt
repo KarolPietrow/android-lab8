@@ -27,8 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,11 +63,15 @@ fun BookScreen() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val bookViewModel = BookViewModel()
-    val bookList by bookViewModel.bookList.collectAsState()
+    val bookList by bookViewModel.bookList.observeAsState(emptyList())
 
     var input by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var selectedBook by remember { mutableStateOf<BookModel?>(null) }
+
+    LaunchedEffect(Unit) {
+        bookViewModel.refreshList()
+    }
 
     bookViewModel.bookStatus.observe(lifecycleOwner) { bookResult ->
         when (bookResult) {

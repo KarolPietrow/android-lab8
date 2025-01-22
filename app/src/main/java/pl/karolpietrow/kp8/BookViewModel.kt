@@ -14,9 +14,13 @@ import pl.karolpietrow.kp8.api.book.BookModel
 import pl.karolpietrow.kp8.api.search.SearchModel
 
 class BookViewModel: ViewModel() {
+    init {
+        refreshList()
+    }
     val repository = BookRepository()
-    private val _bookList = MutableStateFlow<List<BookModel>>(emptyList())
-    val bookList: StateFlow<List<BookModel>> = _bookList
+
+    private val _bookList = MutableLiveData<List<BookModel>>()
+    val bookList: LiveData<List<BookModel>> = _bookList
 
     private val bookApi = RetrofitInstance.bookApi
     private val _bookStatus = MutableLiveData<NetworkResponse<BookModel>>()
