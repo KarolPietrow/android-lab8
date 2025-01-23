@@ -45,9 +45,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import pl.karolpietrow.kp8.api.NetworkResponse
 import pl.karolpietrow.kp8.api.book.BookModel
 import pl.karolpietrow.kp8.ui.theme.KP8Theme
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +129,7 @@ fun BookScreen(modifier: Modifier) {
     }
 
     if (selectedBook != null) {
+        var string by remember { mutableStateOf("Treść niezaładowana") }
         AlertDialog(
             modifier = Modifier.fillMaxWidth(),
             onDismissRequest = { selectedBook = null },
@@ -184,12 +191,19 @@ fun BookScreen(modifier: Modifier) {
                     }
                     Button(
                         onClick = {
-
+                            string = "Proszę czekać..."
+                            bookViewModel.viewModelScope.launch {
+                                string = bookViewModel.getBookOkHttp("https://www.gutenberg.org/cache/epub/${selectedBook!!.id}/pg${selectedBook!!.id}.txt")
+//                                string = bookViewModel.getBookOkHttp(selectedBook!!.formats.textPlain)
+                            }
                         },
                         modifier = Modifier.padding(5.dp)
                     ) {
                         Text("Załaduj treść książki")
                     }
+                    Text(
+                        text = string
+                    )
                 }
             },
             properties = DialogProperties(
@@ -311,8 +325,7 @@ fun BookScreen(modifier: Modifier) {
                                 bookViewModel.getBookBySearch(input)
                             }
                         } else {
-                            Toast.makeText(context, "Pole nie może być puste!", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(context, "Pole nie może być puste!", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.padding(5.dp)

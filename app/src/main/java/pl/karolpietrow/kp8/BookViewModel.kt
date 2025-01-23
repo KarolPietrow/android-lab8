@@ -5,13 +5,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.ConnectionSpec
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import pl.karolpietrow.kp8.api.NetworkResponse
 import pl.karolpietrow.kp8.api.RetrofitInstance
 import pl.karolpietrow.kp8.api.book.BookModel
 import pl.karolpietrow.kp8.api.search.SearchModel
+import java.io.IOException
 
 class BookViewModel: ViewModel() {
     init {
@@ -86,6 +93,29 @@ class BookViewModel: ViewModel() {
         viewModelScope.launch {
             repository.deleteBook(id)
             refreshList()
+        }
+    }
+
+    suspend fun getBookOkHttp(url: String): String {
+
+
+
+        val client = OkHttpClient.Builder()
+            .build()
+        val request = Request.Builder().url(url).build()
+        return withContext(Dispatchers.IO) {
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        throw IOException("error: ${response.code}")
+                    }
+                    response.body?.byteStream()?.bufferedReader().use { reader ->
+                        reader?.readText().orEmpty()
+                    }
+                }
+            } catch (exc: Exception) {
+                "Exception: ${exc.message}"
+            }
         }
     }
 }

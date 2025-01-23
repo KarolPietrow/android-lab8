@@ -1,11 +1,13 @@
 package pl.karolpietrow.kp8.api.book
 
-//data class Formats(
-//    val application/epub+zip: String,
-//    val application/octet-stream: String,
-//    val application/rdf+xml: String,
-//    val application/x-mobipocket-ebook: String,
-//    val image/jpeg: String,
-//    val text/html: String,
-//    val text/plain; charset=us-ascii: String
-//)
+import com.google.gson.annotations.SerializedName
+
+data class Formats(
+    @SerializedName("application/epub+zip") val epubZip: String = "",
+    @SerializedName("application/octet-stream") val octetStream: String = "",
+    @SerializedName("application/rdf+xml") val rdfXml: String = "",
+    @SerializedName("application/x-mobipocket-ebook") val xMobipocketEbook: String = "",
+    @SerializedName("image/jpeg") val imageJpeg: String = "",
+    @SerializedName("text/html") val textHtml: String = "",
+    @SerializedName("text/plain; charset=us-ascii") val textPlain: String = ""
+)

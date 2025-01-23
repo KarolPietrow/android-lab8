@@ -12,5 +12,6 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
     val bookApi: BookApi = getInstance().create(BookApi::class.java)
 }
